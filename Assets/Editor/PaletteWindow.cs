@@ -101,12 +101,13 @@ public class PaletteWindow : EditorWindow {
 			var item = prefabs[i];
 			guiContent.text = item.name;
 
-			var component = item.GetComponentInChildren <AnotherCustomObjectComponent> ();
-		    guiContent.image = AssetPreview.GetAssetPreview (component == null ? (Object)item : (Object)component);
+			var component = item.GetComponentInChildren <AnotherCustomObjectComponent> (true);
+			UnityEngine.Object previewItem = component == null ? (Object)item : (Object)component;
+			guiContent.image = AssetPreview.GetAssetPreview (previewItem);
 
 		    if (guiContent.image == null)
 		    {
-		        if (AssetPreview.IsLoadingAssetPreview(item.gameObject.GetInstanceID()))
+				if (AssetPreview.IsLoadingAssetPreview(previewItem.GetInstanceID()))
 		        {
 		            Debug.LogFormat("Item: {0} is loading Preview", guiContent.text);
 		        }
