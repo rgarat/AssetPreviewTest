@@ -100,7 +100,10 @@ public class PaletteWindow : EditorWindow {
 			GUIContent guiContent = new GUIContent ();
 			var item = prefabs[i];
 			guiContent.text = item.name;
-			guiContent.image = AssetPreview.GetAssetPreview (item);
+
+			var component = item.GetComponentInChildren <AnotherCustomObjectComponent> ();
+		    guiContent.image = AssetPreview.GetAssetPreview (component == null ? (Object)item : (Object)component);
+
 		    if (guiContent.image == null)
 		    {
 		        if (AssetPreview.IsLoadingAssetPreview(item.gameObject.GetInstanceID()))
