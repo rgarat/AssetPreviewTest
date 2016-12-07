@@ -3,67 +3,46 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
+[InitializeOnLoad]
+public class PaletteWindow : Editor {
 
-public class PaletteWindow : EditorWindow {
 
-	public static PaletteWindow instance;
+    static private List<GameObject> prefabs;
 
-    private List<GameObject> prefabs;
-
-	private Vector2 _scrollPosition;
+	static private Vector2 _scrollPosition;
 	private const float ButtonWidth = 200;
 	private const float ButtonHeight = 90;
 
-
-	[MenuItem ("Tools/ShowPreviewPalette", false, 51)]
-	public static void ShowPalette () {
-		instance = (PaletteWindow)EditorWindow.GetWindow (typeof(PaletteWindow));
-		instance.titleContent = new GUIContent ("Palette");
+	static PaletteWindow() {
+		SceneView.onSceneGUIDelegate -= OnSceneGUI;
+		SceneView.onSceneGUIDelegate += OnSceneGUI;
+		InitContent();
 	}
 
-	private void OnEnable ()
-	{
-	    InitContent();
-	}
+	private static void OnSceneGUI (SceneView sceneView ) {
+		Handles.BeginGUI();
+		GUILayout.BeginArea( new Rect( 0, 0, sceneView.position.width, 200 ), EditorStyles.toolbar );
+		{
+			//EditorGUILayout.LabelField("The GUI of this window was modified.");
+			if (GUILayout.Button ("Refresh")) {
+				InitContent ();
+			}
+			if (GUILayout.Button ("ClearCache")) {
+				AssetPreview.SetPreviewTextureCacheSize (1);
+				AssetPreview.SetPreviewTextureCacheSize (1000);
+			}
 
-	private void OnDisable () {
-		//Debug.Log ("OnDisable called...");
-	}
-
-	private void OnDestroy () {
-		//Debug.Log ("OnDestroy called...");
-	}
-
-	private void Update () {
-//			if (_previews.Count != _items.Count) {
-//				GeneratePreviews ();
-//			}
-	}
-
-	private void OnGUI () {
-		//EditorGUILayout.LabelField("The GUI of this window was modified.");
-	    if (GUILayout.Button("Refresh"))
-	    {
-	        InitContent();
-	    }
-	    if (GUILayout.Button("Set 0"))
-	    {
-	        AssetPreview.SetPreviewTextureCacheSize(1);
-	    }
-	    if (GUILayout.Button("Set 1000"))
-	    {
-	        AssetPreview.SetPreviewTextureCacheSize(1000);
-	    }
-
-
-		DrawScroll ();
+			DrawScroll (sceneView);
+			GUILayout.EndArea ();
+			Handles.EndGUI ();
+		}
 	}
 
 
 
 
 
-	private void InitContent () {
+	private static void InitContent () {
 
 		Debug.Log ("InitContent called...");
 
@@ -77,10 +56,10 @@ public class PaletteWindow : EditorWindow {
 
 	}
 
-	private void DrawScroll () {
+	private static void DrawScroll (SceneView sceneView) {
 		
 		int rowCapacity =
-			Mathf.FloorToInt (position.width / (ButtonWidth));
+			Mathf.FloorToInt (sceneView.position.width / (ButtonWidth));
 		_scrollPosition =
 			GUILayout.BeginScrollView (_scrollPosition);
 		int selectionGridIndex = -1;
@@ -93,7 +72,7 @@ public class PaletteWindow : EditorWindow {
 	}
 
 
-	private GUIContent[] GetGUIContentsFromItems () {
+	private static GUIContent[] GetGUIContentsFromItems () {
 		List<GUIContent> guiContents = new List<GUIContent> ();
 		int totalItems = prefabs.Count;
 		for (int i = 0; i < totalItems; i ++) {
@@ -122,7 +101,7 @@ public class PaletteWindow : EditorWindow {
 	}
 
 
-	private GUIStyle GetGUIStyle () {
+	private static GUIStyle GetGUIStyle () {
 		GUIStyle guiStyle = new GUIStyle (GUI.skin.button);
 		guiStyle.alignment = TextAnchor.LowerCenter;
 		guiStyle.imagePosition = ImagePosition.ImageAbove;
